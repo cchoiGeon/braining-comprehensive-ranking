@@ -1,0 +1,137 @@
+:root {
+    --text: #e8ecf1;
+    --panel: #1f2533;
+    --panel-2: #252c3b;
+    --border: #3a4254;
+    --primary: #77a7ff;
+}
+
+body {
+    background: #161b22;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: var(--text);
+}
+
+.ranking-page {
+    padding: 20px;
+}
+
+/* ---------- 시간 설정 ---------- */
+
+.time-setup .row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ---------- 원형 타이머 ---------- */
+
+.circle-timer {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 30px auto;
+}
+
+circle {
+    fill: none;
+    stroke-width: 12;
+}
+
+circle.bg {
+    stroke: #333b4d;
+}
+
+circle.progress {
+    stroke: var(--primary);
+    transform: rotate(-90deg);
+    transform-origin: center;
+    stroke-dasharray: 628;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.25s linear;
+}
+
+.timer-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ---------- 게임 랭킹 ---------- */
+
+.games-ranking h2 {
+    margin-top: 40px;
+}
+
+.ranking-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.ranking-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.ranking-card h3 {
+    margin: 0 0 12px;
+}
+
+.ranking-card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ranking-card li {
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ---------- 종합 랭킹 ---------- */
+
+.dropdown-btn {
+    width: 100%;
+    margin-top: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#totalRankingPanel {
+    margin-top: 12px;
+    background: var(--panel-2);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+#totalRankList li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+}
+
+.hidden {
+    display: none;
+}

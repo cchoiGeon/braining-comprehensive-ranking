@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>종합 랭킹</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="ranking-page">
+
+    <!-- 시각 설정 영역 -->
+    <section class="time-setup">
+        <h2>기간 설정</h2>
+        <div class="row">
+            <input type="date" id="dateInput" />
+
+            <input type="time" id="startTimeInput" />
+            <span>~</span>
+            <input type="time" id="endTimeInput" />
+
+            <button id="applyTimeBtn" class="btn primary">설정 완료</button>
+        </div>
+    </section>
+
+    <!-- 타이머 영역 -->
+    <section class="timer-section">
+        <div class="circle-timer">
+            <svg width="220" height="220">
+                <circle class="bg" cx="110" cy="110" r="100" />
+                <circle class="progress" cx="110" cy="110" r="100" />
+            </svg>
+            <div class="timer-text" id="timerText">00:00:00</div>
+        </div>
+    </section>
+
+    <!-- 게임 랭킹 영역 -->
+    <section class="games-ranking">
+        <h2>게임별 랭킹</h2>
+
+        <div class="ranking-grid">
+
+            <div class="ranking-card" id="rankA">
+                <h3>A · 기억력</h3>
+                <ul id="rankAList"></ul>
+            </div>
+
+            <div class="ranking-card" id="rankB">
+                <h3>B · 문제해결력</h3>
+                <ul id="rankBList"></ul>
+            </div>
+
+            <div class="ranking-card" id="rankC">
+                <h3>C · 집중력</h3>
+                <ul id="rankCList"></ul>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 종합 랭킹 -->
+    <section class="total-ranking">
+        <button id="toggleTotalRanking" class="dropdown-btn">
+            종합 랭킹 보기 ▼
+        </button>
+
+        <div id="totalRankingPanel" class="hidden">
+            <ul id="totalRankList"></ul>
+        </div>
+    </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
