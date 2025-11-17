@@ -41,11 +41,57 @@ const MOCK_DATA = {
     ]
 };
 
+/* ============================
+   기간 선택 UI 초기화
+============================ */
+const pickerConfig = [
+    {
+        inputId: "dateInput",
+        displayId: "dateDisplay",
+        formatter: formatDateDisplay,
+        placeholder: "날짜 선택"
+    },
+    {
+        inputId: "startTimeInput",
+        displayId: "startDisplay",
+        formatter: formatTimeDisplay,
+        placeholder: "시작 시간 선택"
+    },
+    {
+        inputId: "endTimeInput",
+        displayId: "endDisplay",
+        formatter: formatTimeDisplay,
+        placeholder: "종료 시간 선택"
+    }
+];
+
+pickerConfig.forEach(({ inputId, displayId, formatter, placeholder }) => {
+    const input = document.getElementById(inputId);
+    const button = document.querySelector(`.picker-button[data-input="${inputId}"]`);
+    const display = document.getElementById(displayId);
+
+    const updateDisplay = () => {
+        display.textContent = input.value ? formatter(input.value) : placeholder;
+    };
+
+    button.addEventListener("click", () => {
+        if (input.showPicker) {
+            input.showPicker();
+        } else {
+            input.focus();
+        }
+    });
+
+    input.addEventListener("change", updateDisplay);
+    updateDisplay();
+});
 
 /* ============================
    시간 설정 적용
 ============================ */
 document.getElementById("applyTimeBtn").addEventListener("click", () => {
+    const btn = document.getElementById("applyTimeBtn");
+
     const date = document.getElementById("dateInput").value;
     const start = document.getElementById("startTimeInput").value;
     const end = document.getElementById("endTimeInput").value;
@@ -58,8 +104,21 @@ document.getElementById("applyTimeBtn").addEventListener("click", () => {
     remainingSec = Math.floor((endDate - startDate) / 1000);
     if (remainingSec <= 0) return alert("종료 시간이 시작 시간보다 뒤여야 합니다.");
 
+    // 버튼 로딩 및 비활성화
+    btn.classList.add("loading");
+    btn.classList.add("disabled");
+    btn.disabled = true;
+
+    // 타이머 시작
     startTimer();
+
+    // 랭킹 호출 시작
     fetchAllRankings(startDate, endDate);
+
+    // 0.8초 후 로딩 종료
+    setTimeout(() => {
+        btn.classList.remove("loading");
+    }, 800);
 });
 
 /* ============================
@@ -94,42 +153,18 @@ function updateTimerUI() {
 }
 
 /* ============================
-   API 5초마다 호출
+   MOCK fetchRank
 ============================ */
-// async function fetchAllRankings(start, end) {
-//     async function fetchRank(code) {
-//         const url = `http://localhost:3000/api/ranking?code=${code}&start=${start.toISOString()}&end=${end.toISOString()}`;
-//         const res = await fetch(url);
-//         return res.json();
-//     }
-//
-//     async function load() {
-//         const A = await fetchRank(GAME_CODES.A);
-//         const B = await fetchRank(GAME_CODES.B);
-//         const C = await fetchRank(GAME_CODES.C);
-//
-//         renderRankList("A", A);
-//         renderRankList("B", B);
-//         renderRankList("C", C);
-//
-//         renderTotalRanking(A, B, C);
-//     }
-//
-//     await load();
-//     setInterval(load, 5000);
-// }
-
-// 기존 fetchRank 대체
 async function mockFetchRank(code) {
-    // API가 실제로 있을 때는 여기에서 fetch를 사용
-    // 지금은 코드에 따라 MOCK 데이터 반환
     if (code === GAME_CODES.A) return MOCK_DATA.A;
     if (code === GAME_CODES.B) return MOCK_DATA.B;
     if (code === GAME_CODES.C) return MOCK_DATA.C;
     return [];
 }
 
-// 기존 fetchAllRankings 교체
+/* ============================
+   API 5초마다 호출
+============================ */
 async function fetchAllRankings(start, end) {
 
     async function load() {
@@ -147,6 +182,7 @@ async function fetchAllRankings(start, end) {
     await load();
     setInterval(load, 5000);
 }
+
 /* ============================
    게임별 1~7위 표시
 ============================ */
@@ -156,11 +192,15 @@ function renderRankList(key, list) {
 
     list.slice(0, 7).forEach((u, i) => {
         const li = document.createElement("li");
+        li.classList.toggle("top-rank", i < 3);
         li.innerHTML = `
-      <span>${i + 1}위</span>
-      <span>${u.nickname}</span>
-      <span>${u.top}</span>
-    `;
+            <div class="rank-badge">${i + 1}</div>
+            <div class="rank-info">
+                <strong>${u.nickname}</strong>
+                <span>${key} 게임</span>
+            </div>
+            <span class="rank-score">${u.top}점</span>
+        `;
         ul.appendChild(li);
     });
 }
@@ -171,15 +211,16 @@ function renderRankList(key, list) {
 function renderTotalRanking(A, B, C) {
     const scores = {};
 
-    const add = (list) => {
+    const addScore = (list) => {
         list.slice(0, 7).forEach((u, i) => {
-            const score = 8 - (i + 1); // 1위 7점, 7위 1점
-            if (!scores[u.nickname]) scores[u.nickname] = 0;
-            scores[u.nickname] += score;
+            const score = 8 - (i + 1); // 1위 = 7점
+            scores[u.nickname] = (scores[u.nickname] || 0) + score;
         });
     };
 
-    add(A); add(B); add(C);
+    addScore(A);
+    addScore(B);
+    addScore(C);
 
     const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
@@ -189,10 +230,10 @@ function renderTotalRanking(A, B, C) {
     sorted.forEach(([nick, score], i) => {
         const li = document.createElement("li");
         li.innerHTML = `
-      <span>${i + 1}위</span>
-      <span>${nick}</span>
-      <span>${score}점</span>
-    `;
+            <span>${i + 1}위</span>
+            <span>${nick}</span>
+            <span>${score}점</span>
+        `;
         ul.appendChild(li);
     });
 }
@@ -203,3 +244,22 @@ function renderTotalRanking(A, B, C) {
 document.getElementById("toggleTotalRanking").addEventListener("click", () => {
     document.getElementById("totalRankingPanel").classList.toggle("hidden");
 });
+
+/* ============================
+   Formatter helpers
+============================ */
+function formatDateDisplay(value) {
+    if (!value) return "날짜 선택";
+    const [y, m, d] = value.split("-");
+    return `${y}. ${m}. ${d}.`;
+}
+
+function formatTimeDisplay(value) {
+    if (!value) return "시간 선택";
+    const [hour, minute] = value.split(":");
+    const hourNum = Number(hour);
+    const period = hourNum >= 12 ? "오후" : "오전";
+    let displayHour = hourNum % 12;
+    displayHour = displayHour === 0 ? 12 : displayHour;
+    return `${period} ${String(displayHour).padStart(2, "0")}:${minute}`;
+}
